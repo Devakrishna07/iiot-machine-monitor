@@ -1,5 +1,5 @@
-import React, { useEffect, useCallback, useState } from 'react';
-import { RefreshCw, Radio, Wifi, WifiOff } from 'lucide-react';
+import React, { useEffect, useCallback } from 'react';
+import { RefreshCw, Radio } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { fetchMachines, fetchMachineById, acknowledgeFault } from '../features/machines/machineThunks';
 import {
@@ -36,7 +36,6 @@ import { ThemeToggle } from '../components/ThemeToggle';
 
 export const DashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
-  const [sseConnected, setSseConnected] = useState<boolean>(false);
 
   const machines = useAppSelector(selectAllMachines);
   const loading = useAppSelector(selectMachinesLoading);
@@ -70,24 +69,14 @@ export const DashboardPage: React.FC = () => {
   }, [loadData]);
 
   // Real-Time Server-Sent Events (SSE) Stream
-  // Completely replaces the fixed interval polling timer!
   useEffect(() => {
     const sseUrl = 'http://localhost:5000/api/machines/stream';
     const eventSource = new EventSource(sseUrl);
-
-    eventSource.onopen = () => {
-      setSseConnected(true);
-    };
 
     // React immediately when machines.json or any machine status is changed
     eventSource.addEventListener('machine_update', () => {
       loadData();
     });
-
-    eventSource.onerror = () => {
-      setSseConnected(false);
-      // Native EventSource automatically attempts auto-reconnection
-    };
 
     return () => {
       eventSource.close();
@@ -107,45 +96,9 @@ export const DashboardPage: React.FC = () => {
       {/* Header */}
       <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-2.5 w-2.5 relative">
-              <span
-                className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                  sseConnected ? 'bg-emerald-400' : 'bg-amber-400'
-                }`}
-              />
-              <span
-                className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
-                  sseConnected ? 'bg-emerald-500' : 'bg-amber-500'
-                }`}
-              />
-            </span>
-            <span
-              className={`text-xs font-bold tracking-widest uppercase flex items-center gap-1.5 ${
-                sseConnected
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : 'text-amber-600 dark:text-amber-400'
-              }`}
-            >
-              {sseConnected ? (
-                <>
-                  <Wifi className="h-3 w-3" />
-                  Live SSE Stream Connected
-                </>
-              ) : (
-                <>
-                  <WifiOff className="h-3 w-3" />
-                  Connecting Live Stream...
-                </>
-              )}
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             IIoT Machine Monitoring Dashboard
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Real-time event-driven telemetry stream with dynamic SSE push updates and state management.
-          </p>
         </div>
 
         <div className="flex items-center gap-3">

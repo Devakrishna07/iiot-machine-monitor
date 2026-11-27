@@ -9,12 +9,14 @@ export interface PaginationMeta {
 
 export interface ApiSuccessResponse<T> {
   success: true;
+  status: string;
   data: T;
   message?: string;
 }
 
 export interface ApiPaginatedResponse<T> {
   success: true;
+  status: string;
   data: T[];
   pagination: PaginationMeta;
   message?: string;
@@ -22,6 +24,7 @@ export interface ApiPaginatedResponse<T> {
 
 export interface ApiErrorResponse {
   success: false;
+  status: string;
   error: {
     message: string;
     code?: string;
