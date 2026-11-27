@@ -1,10 +1,9 @@
-import React, { useEffect, useCallback } from 'react';
-import { RefreshCw, Radio } from 'lucide-react';
+import React, { useEffect, useCallback, useState } from 'react';
+import { RefreshCw, Radio, Wifi, WifiOff } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { fetchMachines, fetchMachineById, acknowledgeFault } from '../features/machines/machineThunks';
 import {
   selectAllMachines,
-  selectMachineStats,
   selectMachinesLoading,
   selectMachinesError,
   selectStatusFilter,
@@ -27,7 +26,6 @@ import {
   clearSelectedMachine,
   StatusFilter,
 } from '../features/machines/machineSlice';
-import { SummaryStats } from '../features/machines/components/SummaryStats';
 import { FilterBar } from '../features/machines/components/FilterBar';
 import { MachineGrid } from '../features/machines/components/MachineGrid';
 import { MachineDetailModal } from '../features/machines/components/MachineDetailModal';
@@ -38,9 +36,9 @@ import { ThemeToggle } from '../components/ThemeToggle';
 
 export const DashboardPage: React.FC = () => {
   const dispatch = useAppDispatch();
+  const [sseConnected, setSseConnected] = useState<boolean>(false);
 
   const machines = useAppSelector(selectAllMachines);
-  const stats = useAppSelector(selectMachineStats);
   const loading = useAppSelector(selectMachinesLoading);
   const error = useAppSelector(selectMachinesError);
   const statusFilter = useAppSelector(selectStatusFilter);
@@ -66,13 +64,34 @@ export const DashboardPage: React.FC = () => {
     );
   }, [dispatch, pagination.page, pagination.limit, statusFilter, searchQuery]);
 
+  // Initial fetch on mount and whenever user changes pagination / filters
   useEffect(() => {
     loadData();
   }, [loadData]);
 
+  // Real-Time Server-Sent Events (SSE) Stream
+  // Completely replaces the fixed interval polling timer!
   useEffect(() => {
-    const interval = setInterval(loadData, 8000);
-    return () => clearInterval(interval);
+    const sseUrl = 'http://localhost:5000/api/machines/stream';
+    const eventSource = new EventSource(sseUrl);
+
+    eventSource.onopen = () => {
+      setSseConnected(true);
+    };
+
+    // React immediately when machines.json or any machine status is changed
+    eventSource.addEventListener('machine_update', () => {
+      loadData();
+    });
+
+    eventSource.onerror = () => {
+      setSseConnected(false);
+      // Native EventSource automatically attempts auto-reconnection
+    };
+
+    return () => {
+      eventSource.close();
+    };
   }, [loadData]);
 
   const handleSelectMachine = (id: string) => {
@@ -83,13 +102,6 @@ export const DashboardPage: React.FC = () => {
     dispatch(acknowledgeFault({ id, supervisorId, notes }));
   };
 
-  const counts = {
-    all: pagination.totalItems,
-    running: stats.running,
-    idle: stats.idle,
-    fault: stats.fault,
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -97,18 +109,42 @@ export const DashboardPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="flex h-2.5 w-2.5 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+              <span
+                className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                  sseConnected ? 'bg-emerald-400' : 'bg-amber-400'
+                }`}
+              />
+              <span
+                className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
+                  sseConnected ? 'bg-emerald-500' : 'bg-amber-500'
+                }`}
+              />
             </span>
-            <span className="text-xs font-bold tracking-widest uppercase text-emerald-600 dark:text-emerald-400">
-              Live Monitoring Stream
+            <span
+              className={`text-xs font-bold tracking-widest uppercase flex items-center gap-1.5 ${
+                sseConnected
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : 'text-amber-600 dark:text-amber-400'
+              }`}
+            >
+              {sseConnected ? (
+                <>
+                  <Wifi className="h-3 w-3" />
+                  Live SSE Stream Connected
+                </>
+              ) : (
+                <>
+                  <WifiOff className="h-3 w-3" />
+                  Connecting Live Stream...
+                </>
+              )}
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-1">
             IIoT Machine Monitoring Dashboard
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Real-time industrial telemetry with server-side pagination & supervisor fault acknowledgment.
+            Real-time event-driven telemetry stream with dynamic SSE push updates and state management.
           </p>
         </div>
 
@@ -137,22 +173,13 @@ export const DashboardPage: React.FC = () => {
       {/* Error Banner */}
       {error && <ErrorMessage message={error} onRetry={loadData} />}
 
-      {/* Metric Cards */}
-      <SummaryStats
-        total={stats.total}
-        running={stats.running}
-        idle={stats.idle}
-        fault={stats.fault}
-        avgTemperature={stats.avgTemperature}
-      />
-
       {/* Search & Filter Bar */}
       <FilterBar
         statusFilter={statusFilter}
         onStatusChange={(status: StatusFilter) => dispatch(setStatusFilter(status))}
         searchQuery={searchQuery}
         onSearchChange={(q: string) => dispatch(setSearchQuery(q))}
-        counts={counts}
+        totalItems={pagination.totalItems}
       />
 
       {/* Machine Grid or Loading state */}

@@ -1,13 +1,16 @@
 import fs from 'node:fs/promises';
+import { watch } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Machine, MachineProps } from '../../domain/entities/Machine.js';
 import { IMachineRepository } from '../../domain/repositories/IMachineRepository.js';
 import { PaginationQuery, PaginatedResult } from '../../../shared/domain/Pagination.js';
+import { eventStream } from '../../../shared/infrastructure/EventStream.js';
 
 export class JsonMachineRepository implements IMachineRepository {
   private filePath: string;
   private cache: Machine[] | null = null;
+  private isWriting = false;
 
   constructor(customPath?: string) {
     if (customPath) {
@@ -15,6 +18,32 @@ export class JsonMachineRepository implements IMachineRepository {
     } else {
       const __dirname = path.dirname(fileURLToPath(import.meta.url));
       this.filePath = path.resolve(__dirname, '../data/machines.json');
+    }
+
+    this.setupFileWatcher();
+  }
+
+  private setupFileWatcher(): void {
+    try {
+      let debounceTimeout: NodeJS.Timeout | null = null;
+      watch(this.filePath, () => {
+        // If we are the ones writing to the file, ignore self-trigger
+        if (this.isWriting) return;
+
+        if (debounceTimeout) clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(async () => {
+          // Invalidate in-memory cache
+          this.cache = null;
+          await this.load();
+          // Broadcast update event to all connected SSE clients
+          eventStream.broadcast('machine_update', {
+            source: 'disk_change',
+            timestamp: new Date().toISOString(),
+          });
+        }, 150);
+      });
+    } catch (err) {
+      console.warn('Could not initialize file watcher for machines.json:', err);
     }
   }
 
@@ -37,11 +66,17 @@ export class JsonMachineRepository implements IMachineRepository {
   private async persist(): Promise<void> {
     if (!this.cache) return;
     try {
+      this.isWriting = true;
       const plainObjects = this.cache.map((m) => m.toJSON());
       await fs.writeFile(this.filePath, JSON.stringify(plainObjects, null, 2), 'utf-8');
     } catch (error) {
       console.error(`Failed to persist machines to ${this.filePath}:`, error);
       throw error;
+    } finally {
+      // Release write lock shortly after
+      setTimeout(() => {
+        this.isWriting = false;
+      }, 200);
     }
   }
 
@@ -102,6 +137,15 @@ export class JsonMachineRepository implements IMachineRepository {
 
     machines[index] = machine;
     await this.persist();
+
+    // Broadcast SSE update event on successful update
+    eventStream.broadcast('machine_update', {
+      source: 'api_update',
+      machineId: machine.id,
+      status: machine.status,
+      timestamp: new Date().toISOString(),
+    });
+
     return machine;
   }
 }

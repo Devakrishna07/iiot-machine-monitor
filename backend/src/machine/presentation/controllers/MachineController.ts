@@ -5,6 +5,7 @@ import { AcknowledgeMachineFaultUseCase } from '../../application/use-cases/Ackn
 import { InvalidStatusTransitionError } from '../../domain/errors/InvalidStatusTransitionError.js';
 import { acknowledgeFaultSchema } from '../validators/machine.validators.js';
 import { ApiResponse } from '../../../shared/presentation/ApiResponse.js';
+import { eventStream } from '../../../shared/infrastructure/EventStream.js';
 
 export class MachineController {
   constructor(
@@ -12,6 +13,10 @@ export class MachineController {
     private readonly getMachineByIdUseCase: GetMachineByIdUseCase,
     private readonly acknowledgeMachineFaultUseCase: AcknowledgeMachineFaultUseCase
   ) {}
+
+  public stream = (_req: Request, res: Response): void => {
+    eventStream.addClient(res);
+  };
 
   public getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
