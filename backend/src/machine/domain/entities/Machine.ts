@@ -1,3 +1,5 @@
+import { InvalidStatusTransitionError } from '../errors/InvalidStatusTransitionError.js';
+
 export type MachineStatus = 'running' | 'idle' | 'fault';
 
 export interface FaultDetails {
@@ -7,6 +9,7 @@ export interface FaultDetails {
   isAcknowledged: boolean;
   acknowledgedBy?: string | null;
   acknowledgedAt?: string | null;
+  notes?: string | null;
 }
 
 export interface TelemetryPoint {
@@ -53,6 +56,54 @@ export class Machine {
       fault: props.fault || null,
       telemetryHistory: props.telemetryHistory || [],
     });
+  }
+
+  public acknowledgeFault(supervisorId: string, notes?: string): void {
+    if (this.props.status !== 'fault') {
+      throw new InvalidStatusTransitionError(
+        this.props.status,
+        'idle',
+        `Cannot acknowledge fault on machine '${this.props.name}' (${this.props.id}) because its current status is '${this.props.status}', not 'fault'.`
+      );
+    }
+
+    if (!supervisorId || supervisorId.trim() === '') {
+      throw new Error('supervisorId is required to acknowledge a machine fault');
+    }
+
+    const now = new Date().toISOString();
+
+    // Transition state
+    this.props.status = 'idle';
+    this.props.lastUpdated = now;
+
+    // Normalize standby telemetry safely
+    if (this.props.temperature > 50) {
+      this.props.temperature = Number((this.props.temperature * 0.75).toFixed(1));
+    }
+    if (this.props.vibration > 1.0) {
+      this.props.vibration = 0.25;
+    }
+
+    // Update fault record
+    if (this.props.fault) {
+      this.props.fault = {
+        ...this.props.fault,
+        isAcknowledged: true,
+        acknowledgedBy: supervisorId.trim(),
+        acknowledgedAt: now,
+        notes: notes?.trim() || null,
+      };
+    }
+
+    // Append to telemetry history
+    if (this.props.telemetryHistory) {
+      this.props.telemetryHistory.push({
+        timestamp: now,
+        temperature: this.props.temperature,
+        vibration: this.props.vibration,
+      });
+    }
   }
 
   public get id(): string {

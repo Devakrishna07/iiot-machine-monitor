@@ -16,6 +16,8 @@ export const selectPagination = (state: RootState) => state.machines.pagination;
 export const selectSelectedMachine = (state: RootState) => state.machines.selectedMachine;
 export const selectSelectedLoading = (state: RootState) => state.machines.selectedLoading;
 export const selectSelectedError = (state: RootState) => state.machines.selectedError;
+export const selectActionLoading = (state: RootState) => state.machines.actionLoading;
+export const selectActionSuccessMessage = (state: RootState) => state.machines.actionSuccessMessage;
 
 export const selectMachineStats = createSelector(
   [selectAllMachines, selectPagination],

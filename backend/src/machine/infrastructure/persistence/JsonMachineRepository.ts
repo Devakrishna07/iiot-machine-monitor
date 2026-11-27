@@ -34,6 +34,17 @@ export class JsonMachineRepository implements IMachineRepository {
     }
   }
 
+  private async persist(): Promise<void> {
+    if (!this.cache) return;
+    try {
+      const plainObjects = this.cache.map((m) => m.toJSON());
+      await fs.writeFile(this.filePath, JSON.stringify(plainObjects, null, 2), 'utf-8');
+    } catch (error) {
+      console.error(`Failed to persist machines to ${this.filePath}:`, error);
+      throw error;
+    }
+  }
+
   public async getAll(): Promise<Machine[]> {
     const machines = await this.load();
     return [...machines];
@@ -77,7 +88,20 @@ export class JsonMachineRepository implements IMachineRepository {
 
   public async getById(id: string): Promise<Machine | null> {
     const machines = await this.load();
-    const found = machines.find((m) => m.id === id);
+    const found = machines.find((m) => m.id.toLowerCase() === id.toLowerCase());
     return found ? found : null;
+  }
+
+  public async update(machine: Machine): Promise<Machine> {
+    const machines = await this.load();
+    const index = machines.findIndex((m) => m.id.toLowerCase() === machine.id.toLowerCase());
+
+    if (index === -1) {
+      throw new Error(`Cannot update machine '${machine.id}' because it was not found.`);
+    }
+
+    machines[index] = machine;
+    await this.persist();
+    return machine;
   }
 }

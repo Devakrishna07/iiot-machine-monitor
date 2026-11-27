@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { MachineApiModel, MachineDetailModel, MachineStatus } from '../../api/machineApi';
 import { PaginationMeta } from '../../api/types';
-import { fetchMachines, fetchMachineById } from './machineThunks';
+import { fetchMachines, fetchMachineById, acknowledgeFault } from './machineThunks';
 
 export type StatusFilter = 'all' | MachineStatus;
 export type ThemeMode = 'dark' | 'light';
@@ -18,6 +18,8 @@ export interface MachineState {
   selectedMachine: MachineDetailModel | null;
   selectedLoading: boolean;
   selectedError: string | null;
+  actionLoading: boolean;
+  actionSuccessMessage: string | null;
 }
 
 const initialState: MachineState = {
@@ -39,6 +41,8 @@ const initialState: MachineState = {
   selectedMachine: null,
   selectedLoading: false,
   selectedError: null,
+  actionLoading: false,
+  actionSuccessMessage: null,
 };
 
 export const machineSlice = createSlice({
@@ -66,6 +70,10 @@ export const machineSlice = createSlice({
     clearSelectedMachine: (state) => {
       state.selectedMachine = null;
       state.selectedError = null;
+      state.actionSuccessMessage = null;
+    },
+    clearActionMessage: (state) => {
+      state.actionSuccessMessage = null;
     },
   },
   extraReducers: (builder) => {
@@ -89,6 +97,7 @@ export const machineSlice = createSlice({
       .addCase(fetchMachineById.pending, (state) => {
         state.selectedLoading = true;
         state.selectedError = null;
+        state.actionSuccessMessage = null;
       })
       .addCase(fetchMachineById.fulfilled, (state, action) => {
         state.selectedLoading = false;
@@ -97,6 +106,33 @@ export const machineSlice = createSlice({
       .addCase(fetchMachineById.rejected, (state, action) => {
         state.selectedLoading = false;
         state.selectedError = action.payload || 'Failed to load machine details';
+      })
+      // Acknowledge Fault
+      .addCase(acknowledgeFault.pending, (state) => {
+        state.actionLoading = true;
+        state.selectedError = null;
+      })
+      .addCase(acknowledgeFault.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        state.selectedMachine = action.payload;
+        state.actionSuccessMessage = `Fault on ${action.payload.name} successfully acknowledged.`;
+
+        // Optimistically update the item in the list array
+        const idx = state.items.findIndex((m) => m.id === action.payload.id);
+        if (idx !== -1) {
+          state.items[idx] = {
+            id: action.payload.id,
+            name: action.payload.name,
+            status: action.payload.status,
+            temperature: action.payload.temperature,
+            vibration: action.payload.vibration,
+            lastUpdated: action.payload.lastUpdated,
+          };
+        }
+      })
+      .addCase(acknowledgeFault.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.selectedError = action.payload || 'Failed to acknowledge fault';
       });
   },
 });
@@ -108,6 +144,7 @@ export const {
   setLimit,
   toggleTheme,
   clearSelectedMachine,
+  clearActionMessage,
 } = machineSlice.actions;
 
 export default machineSlice.reducer;

@@ -10,6 +10,7 @@ export interface FaultDetails {
   isAcknowledged: boolean;
   acknowledgedBy?: string | null;
   acknowledgedAt?: string | null;
+  notes?: string | null;
 }
 
 export interface TelemetryPoint {
@@ -58,5 +59,17 @@ export const fetchMachinesApi = async (
 
 export const fetchMachineByIdApi = async (id: string): Promise<MachineDetailModel> => {
   const response = await apiClient.get<ApiSuccessResponse<MachineDetailModel>>(`/machines/${id}`);
+  return response.data.data;
+};
+
+export const acknowledgeMachineFaultApi = async (
+  id: string,
+  supervisorId: string,
+  notes?: string
+): Promise<MachineDetailModel> => {
+  const response = await apiClient.patch<ApiSuccessResponse<MachineDetailModel>>(
+    `/machines/${id}/acknowledge`,
+    { supervisorId, notes }
+  );
   return response.data.data;
 };

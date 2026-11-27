@@ -11,19 +11,35 @@
     "operatingHours": 4120,
     "fault": null,
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:15:00Z", "temperature": 52.1, "vibration": 1.10 },
-      { "timestamp": "2026-11-27T05:20:00Z", "temperature": 55.4, "vibration": 1.18 },
-      { "timestamp": "2026-11-27T05:25:00Z", "temperature": 57.2, "vibration": 1.22 },
-      { "timestamp": "2026-11-27T05:30:00Z", "temperature": 58.4, "vibration": 1.25 }
+      {
+        "timestamp": "2026-11-27T05:15:00Z",
+        "temperature": 52.1,
+        "vibration": 1.1
+      },
+      {
+        "timestamp": "2026-11-27T05:20:00Z",
+        "temperature": 55.4,
+        "vibration": 1.18
+      },
+      {
+        "timestamp": "2026-11-27T05:25:00Z",
+        "temperature": 57.2,
+        "vibration": 1.22
+      },
+      {
+        "timestamp": "2026-11-27T05:30:00Z",
+        "temperature": 58.4,
+        "vibration": 1.25
+      }
     ]
   },
   {
     "id": "MCH-002",
     "name": "Hydraulic Stamping Press 500T",
-    "status": "fault",
-    "temperature": 84.1,
-    "vibration": 4.82,
-    "lastUpdated": "2026-11-27T05:31:15.000Z",
+    "status": "idle",
+    "temperature": 63.1,
+    "vibration": 0.25,
+    "lastUpdated": "2026-11-27T07:06:11.526Z",
     "type": "Heavy Hydraulic Press",
     "location": "Shop Floor A - Bay 2",
     "operatingHours": 5340,
@@ -31,15 +47,37 @@
       "code": "ERR_THERMAL_OVERLOAD",
       "reason": "Hydraulic cylinder fluid temperature exceeded critical threshold (84.1°C > 75.0°C). Safety interlock triggered.",
       "triggeredAt": "2026-11-27T05:28:40.000Z",
-      "isAcknowledged": false,
-      "acknowledgedBy": null,
-      "acknowledgedAt": null
+      "isAcknowledged": true,
+      "acknowledgedBy": "SUP-JONES-01",
+      "acknowledgedAt": "2026-11-27T07:06:11.526Z",
+      "notes": "Fluid flushed and level verified."
     },
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:15:00Z", "temperature": 68.0, "vibration": 2.20 },
-      { "timestamp": "2026-11-27T05:20:00Z", "temperature": 73.4, "vibration": 3.10 },
-      { "timestamp": "2026-11-27T05:25:00Z", "temperature": 79.5, "vibration": 4.15 },
-      { "timestamp": "2026-11-27T05:31:15Z", "temperature": 84.1, "vibration": 4.82 }
+      {
+        "timestamp": "2026-11-27T05:15:00Z",
+        "temperature": 68,
+        "vibration": 2.2
+      },
+      {
+        "timestamp": "2026-11-27T05:20:00Z",
+        "temperature": 73.4,
+        "vibration": 3.1
+      },
+      {
+        "timestamp": "2026-11-27T05:25:00Z",
+        "temperature": 79.5,
+        "vibration": 4.15
+      },
+      {
+        "timestamp": "2026-11-27T05:31:15Z",
+        "temperature": 84.1,
+        "vibration": 4.82
+      },
+      {
+        "timestamp": "2026-11-27T07:06:11.526Z",
+        "temperature": 63.1,
+        "vibration": 0.25
+      }
     ]
   },
   {
@@ -54,9 +92,21 @@
     "operatingHours": 2980,
     "fault": null,
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:15:00Z", "temperature": 62.0, "vibration": 0.90 },
-      { "timestamp": "2026-11-27T05:20:00Z", "temperature": 62.9, "vibration": 0.92 },
-      { "timestamp": "2026-11-27T05:28:40Z", "temperature": 63.8, "vibration": 0.95 }
+      {
+        "timestamp": "2026-11-27T05:15:00Z",
+        "temperature": 62,
+        "vibration": 0.9
+      },
+      {
+        "timestamp": "2026-11-27T05:20:00Z",
+        "temperature": 62.9,
+        "vibration": 0.92
+      },
+      {
+        "timestamp": "2026-11-27T05:28:40Z",
+        "temperature": 63.8,
+        "vibration": 0.95
+      }
     ]
   },
   {
@@ -71,17 +121,25 @@
     "operatingHours": 1850,
     "fault": null,
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:15:00Z", "temperature": 40.1, "vibration": 0.35 },
-      { "timestamp": "2026-11-27T05:25:10Z", "temperature": 38.2, "vibration": 0.15 }
+      {
+        "timestamp": "2026-11-27T05:15:00Z",
+        "temperature": 40.1,
+        "vibration": 0.35
+      },
+      {
+        "timestamp": "2026-11-27T05:25:10Z",
+        "temperature": 38.2,
+        "vibration": 0.15
+      }
     ]
   },
   {
     "id": "MCH-005",
     "name": "Heavy Duty Industrial Lathe",
-    "status": "fault",
-    "temperature": 76.5,
-    "vibration": 3.91,
-    "lastUpdated": "2026-11-27T05:32:00.000Z",
+    "status": "idle",
+    "temperature": 57.4,
+    "vibration": 0.25,
+    "lastUpdated": "2026-11-27T07:10:33.585Z",
     "type": "Turning Machine",
     "location": "Shop Floor A - Bay 3",
     "operatingHours": 6420,
@@ -89,14 +147,32 @@
       "code": "ERR_VIBRATION_EXCESS",
       "reason": "Spindle harmonic vibration exceeded safe operational envelope (3.91 mm/s > 3.00 mm/s). Chuck unbalance suspected.",
       "triggeredAt": "2026-11-27T05:30:15.000Z",
-      "isAcknowledged": false,
-      "acknowledgedBy": null,
-      "acknowledgedAt": null
+      "isAcknowledged": true,
+      "acknowledgedBy": "sup-jones",
+      "acknowledgedAt": "2026-11-27T07:10:33.585Z",
+      "notes": null
     },
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:20:00Z", "temperature": 65.2, "vibration": 1.85 },
-      { "timestamp": "2026-11-27T05:26:00Z", "temperature": 71.0, "vibration": 2.95 },
-      { "timestamp": "2026-11-27T05:32:00Z", "temperature": 76.5, "vibration": 3.91 }
+      {
+        "timestamp": "2026-11-27T05:20:00Z",
+        "temperature": 65.2,
+        "vibration": 1.85
+      },
+      {
+        "timestamp": "2026-11-27T05:26:00Z",
+        "temperature": 71,
+        "vibration": 2.95
+      },
+      {
+        "timestamp": "2026-11-27T05:32:00Z",
+        "temperature": 76.5,
+        "vibration": 3.91
+      },
+      {
+        "timestamp": "2026-11-27T07:10:33.585Z",
+        "temperature": 57.4,
+        "vibration": 0.25
+      }
     ]
   },
   {
@@ -111,8 +187,16 @@
     "operatingHours": 3210,
     "fault": null,
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:15:00Z", "temperature": 49.0, "vibration": 0.82 },
-      { "timestamp": "2026-11-27T05:29:50Z", "temperature": 51.3, "vibration": 0.88 }
+      {
+        "timestamp": "2026-11-27T05:15:00Z",
+        "temperature": 49,
+        "vibration": 0.82
+      },
+      {
+        "timestamp": "2026-11-27T05:29:50Z",
+        "temperature": 51.3,
+        "vibration": 0.88
+      }
     ]
   },
   {
@@ -127,7 +211,11 @@
     "operatingHours": 2450,
     "fault": null,
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:33:10Z", "temperature": 49.6, "vibration": 0.72 }
+      {
+        "timestamp": "2026-11-27T05:33:10Z",
+        "temperature": 49.6,
+        "vibration": 0.72
+      }
     ]
   },
   {
@@ -142,7 +230,11 @@
     "operatingHours": 8900,
     "fault": null,
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:34:00Z", "temperature": 67.2, "vibration": 1.45 }
+      {
+        "timestamp": "2026-11-27T05:34:00Z",
+        "temperature": 67.2,
+        "vibration": 1.45
+      }
     ]
   },
   {
@@ -150,14 +242,18 @@
     "name": "Automated Guided Vehicle (AGV-01)",
     "status": "idle",
     "temperature": 32.5,
-    "vibration": 0.10,
+    "vibration": 0.1,
     "lastUpdated": "2026-11-27T05:20:00.000Z",
     "type": "Mobile Transport Unit",
     "location": "Warehouse Logistics",
     "operatingHours": 1120,
     "fault": null,
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:20:00Z", "temperature": 32.5, "vibration": 0.10 }
+      {
+        "timestamp": "2026-11-27T05:20:00Z",
+        "temperature": 32.5,
+        "vibration": 0.1
+      }
     ]
   },
   {
@@ -165,7 +261,7 @@
     "name": "High-Speed Plasma Cutter",
     "status": "fault",
     "temperature": 88.7,
-    "vibration": 5.10,
+    "vibration": 5.1,
     "lastUpdated": "2026-11-27T05:34:45.000Z",
     "type": "CNC Plasma Table",
     "location": "Fabrication Bay 2",
@@ -179,8 +275,16 @@
       "acknowledgedAt": null
     },
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:25:00Z", "temperature": 75.0, "vibration": 3.80 },
-      { "timestamp": "2026-11-27T05:34:45Z", "temperature": 88.7, "vibration": 5.10 }
+      {
+        "timestamp": "2026-11-27T05:25:00Z",
+        "temperature": 75,
+        "vibration": 3.8
+      },
+      {
+        "timestamp": "2026-11-27T05:34:45Z",
+        "temperature": 88.7,
+        "vibration": 5.1
+      }
     ]
   },
   {
@@ -188,14 +292,18 @@
     "name": "Industrial Curing Oven",
     "status": "running",
     "temperature": 72.1,
-    "vibration": 0.40,
+    "vibration": 0.4,
     "lastUpdated": "2026-11-27T05:35:10.000Z",
     "type": "Convection Curing Chamber",
     "location": "Coating Line",
     "operatingHours": 3670,
     "fault": null,
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:35:10Z", "temperature": 72.1, "vibration": 0.40 }
+      {
+        "timestamp": "2026-11-27T05:35:10Z",
+        "temperature": 72.1,
+        "vibration": 0.4
+      }
     ]
   },
   {
@@ -210,14 +318,18 @@
     "operatingHours": 2190,
     "fault": null,
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:18:25Z", "temperature": 35.8, "vibration": 0.22 }
+      {
+        "timestamp": "2026-11-27T05:18:25Z",
+        "temperature": 35.8,
+        "vibration": 0.22
+      }
     ]
   },
   {
     "id": "MCH-013",
     "name": "Coil Slitting Line",
     "status": "running",
-    "temperature": 55.0,
+    "temperature": 55,
     "vibration": 1.12,
     "lastUpdated": "2026-11-27T05:33:50.000Z",
     "type": "Sheet Metal Slitter",
@@ -225,7 +337,11 @@
     "operatingHours": 5110,
     "fault": null,
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:33:50Z", "temperature": 55.0, "vibration": 1.12 }
+      {
+        "timestamp": "2026-11-27T05:33:50Z",
+        "temperature": 55,
+        "vibration": 1.12
+      }
     ]
   },
   {
@@ -240,7 +356,11 @@
     "operatingHours": 1640,
     "fault": null,
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:32:40Z", "temperature": 42.4, "vibration": 0.65 }
+      {
+        "timestamp": "2026-11-27T05:32:40Z",
+        "temperature": 42.4,
+        "vibration": 0.65
+      }
     ]
   },
   {
@@ -262,7 +382,11 @@
       "acknowledgedAt": null
     },
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:35:30Z", "temperature": 79.9, "vibration": 3.75 }
+      {
+        "timestamp": "2026-11-27T05:35:30Z",
+        "temperature": 79.9,
+        "vibration": 3.75
+      }
     ]
   },
   {
@@ -277,7 +401,11 @@
     "operatingHours": 1420,
     "fault": null,
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:15:00Z", "temperature": 29.4, "vibration": 0.08 }
+      {
+        "timestamp": "2026-11-27T05:15:00Z",
+        "temperature": 29.4,
+        "vibration": 0.08
+      }
     ]
   },
   {
@@ -285,21 +413,25 @@
     "name": "Waterjet Cutting Table 4000 bar",
     "status": "running",
     "temperature": 61.2,
-    "vibration": 1.80,
+    "vibration": 1.8,
     "lastUpdated": "2026-11-27T05:34:20.000Z",
     "type": "Abrasive Waterjet",
     "location": "Fabrication Bay 3",
     "operatingHours": 3950,
     "fault": null,
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:34:20Z", "temperature": 61.2, "vibration": 1.80 }
+      {
+        "timestamp": "2026-11-27T05:34:20Z",
+        "temperature": 61.2,
+        "vibration": 1.8
+      }
     ]
   },
   {
     "id": "MCH-018",
     "name": "Chip Conveyor & Briquetting Press",
     "status": "running",
-    "temperature": 48.0,
+    "temperature": 48,
     "vibration": 1.05,
     "lastUpdated": "2026-11-27T05:33:00.000Z",
     "type": "Recycling & Scrap System",
@@ -307,7 +439,11 @@
     "operatingHours": 6100,
     "fault": null,
     "telemetryHistory": [
-      { "timestamp": "2026-11-27T05:33:00Z", "temperature": 48.0, "vibration": 1.05 }
+      {
+        "timestamp": "2026-11-27T05:33:00Z",
+        "temperature": 48,
+        "vibration": 1.05
+      }
     ]
   }
 ]

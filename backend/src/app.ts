@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import { JsonMachineRepository } from './machine/infrastructure/persistence/JsonMachineRepository.js';
 import { GetAllMachinesUseCase } from './machine/application/use-cases/GetAllMachinesUseCase.js';
 import { GetMachineByIdUseCase } from './machine/application/use-cases/GetMachineByIdUseCase.js';
+import { AcknowledgeMachineFaultUseCase } from './machine/application/use-cases/AcknowledgeMachineFaultUseCase.js';
 import { MachineController } from './machine/presentation/controllers/MachineController.js';
 import { createMachineRouter } from './machine/presentation/routes/machine.routes.js';
 
@@ -22,7 +23,13 @@ app.get('/api/health', (_req: Request, res: Response) => {
 const machineRepository = new JsonMachineRepository();
 const getAllMachinesUseCase = new GetAllMachinesUseCase(machineRepository);
 const getMachineByIdUseCase = new GetMachineByIdUseCase(machineRepository);
-const machineController = new MachineController(getAllMachinesUseCase, getMachineByIdUseCase);
+const acknowledgeMachineFaultUseCase = new AcknowledgeMachineFaultUseCase(machineRepository);
+
+const machineController = new MachineController(
+  getAllMachinesUseCase,
+  getMachineByIdUseCase,
+  acknowledgeMachineFaultUseCase
+);
 
 // Mount Domain Routes
 app.use('/api/machines', createMachineRouter(machineController));

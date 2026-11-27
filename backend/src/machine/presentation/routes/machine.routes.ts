@@ -6,6 +6,7 @@ export function createMachineRouter(controller: MachineController): Router {
 
   router.get('/', controller.getAll);
   router.get('/:id', controller.getById);
+  router.patch('/:id/acknowledge', controller.acknowledge);
 
   return router;
 }

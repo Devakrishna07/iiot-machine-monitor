@@ -5,4 +5,5 @@ export interface IMachineRepository {
   getAll(): Promise<Machine[]>;
   findPaginated(query: PaginationQuery): Promise<PaginatedResult<Machine>>;
   getById(id: string): Promise<Machine | null>;
+  update(machine: Machine): Promise<Machine>;
 }

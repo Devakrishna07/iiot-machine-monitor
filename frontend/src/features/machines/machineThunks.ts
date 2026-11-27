@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import {
   fetchMachinesApi,
   fetchMachineByIdApi,
+  acknowledgeMachineFaultApi,
   FetchMachinesParams,
   MachineApiModel,
   MachineDetailModel,
@@ -37,5 +38,27 @@ export const fetchMachineById = createAsyncThunk<
       return rejectWithValue(err.message);
     }
     return rejectWithValue('Failed to fetch machine details');
+  }
+});
+
+export interface AcknowledgeFaultPayload {
+  id: string;
+  supervisorId: string;
+  notes?: string;
+}
+
+export const acknowledgeFault = createAsyncThunk<
+  MachineDetailModel,
+  AcknowledgeFaultPayload,
+  { rejectValue: string }
+>('machines/acknowledgeFault', async ({ id, supervisorId, notes }, { rejectWithValue }) => {
+  try {
+    const data = await acknowledgeMachineFaultApi(id, supervisorId, notes);
+    return data;
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return rejectWithValue(err.message);
+    }
+    return rejectWithValue('Failed to acknowledge machine fault');
   }
 });

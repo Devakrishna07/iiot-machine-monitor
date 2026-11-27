@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { RefreshCw, Radio } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store';
-import { fetchMachines, fetchMachineById } from '../features/machines/machineThunks';
+import { fetchMachines, fetchMachineById, acknowledgeFault } from '../features/machines/machineThunks';
 import {
   selectAllMachines,
   selectMachineStats,
@@ -15,6 +15,8 @@ import {
   selectSelectedMachine,
   selectSelectedLoading,
   selectSelectedError,
+  selectActionLoading,
+  selectActionSuccessMessage,
 } from '../features/machines/machineSelectors';
 import {
   setStatusFilter,
@@ -50,6 +52,8 @@ export const DashboardPage: React.FC = () => {
   const selectedMachine = useAppSelector(selectSelectedMachine);
   const selectedLoading = useAppSelector(selectSelectedLoading);
   const selectedError = useAppSelector(selectSelectedError);
+  const actionLoading = useAppSelector(selectActionLoading);
+  const actionSuccessMessage = useAppSelector(selectActionSuccessMessage);
 
   const loadData = useCallback(() => {
     dispatch(
@@ -73,6 +77,10 @@ export const DashboardPage: React.FC = () => {
 
   const handleSelectMachine = (id: string) => {
     dispatch(fetchMachineById(id));
+  };
+
+  const handleAcknowledgeFault = (id: string, supervisorId: string, notes?: string) => {
+    dispatch(acknowledgeFault({ id, supervisorId, notes }));
   };
 
   const counts = {
@@ -100,7 +108,7 @@ export const DashboardPage: React.FC = () => {
             IIoT Machine Monitoring Dashboard
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Real-time industrial telemetry with server-side pagination & deep diagnostic inspection.
+            Real-time industrial telemetry with server-side pagination & supervisor fault acknowledgment.
           </p>
         </div>
 
@@ -170,7 +178,10 @@ export const DashboardPage: React.FC = () => {
           machine={selectedMachine}
           loading={selectedLoading}
           error={selectedError}
+          actionLoading={actionLoading}
+          actionSuccessMessage={actionSuccessMessage}
           onClose={() => dispatch(clearSelectedMachine())}
+          onAcknowledgeFault={handleAcknowledgeFault}
         />
       )}
     </div>

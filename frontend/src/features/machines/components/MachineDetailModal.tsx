@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   X,
   Thermometer,
@@ -10,6 +10,8 @@ import {
   AlertTriangle,
   History,
   CheckCircle2,
+  ShieldCheck,
+  RefreshCw,
 } from 'lucide-react';
 import { MachineDetailModel } from '../../../api/machineApi';
 import { StatusBadge } from '../../../components/StatusBadge';
@@ -18,16 +20,40 @@ interface MachineDetailModalProps {
   machine: MachineDetailModel | null;
   loading: boolean;
   error: string | null;
+  actionLoading?: boolean;
+  actionSuccessMessage?: string | null;
   onClose: () => void;
+  onAcknowledgeFault?: (id: string, supervisorId: string, notes?: string) => void;
 }
 
 export const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
   machine,
   loading,
   error,
+  actionLoading = false,
+  actionSuccessMessage = null,
   onClose,
+  onAcknowledgeFault,
 }) => {
+  const [showAckForm, setShowAckForm] = useState(false);
+  const [supervisorId, setSupervisorId] = useState('');
+  const [notes, setNotes] = useState('');
+  const [validationError, setValidationError] = useState('');
+
   if (!machine && !loading && !error) return null;
+
+  const handleSubmitAck = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!supervisorId.trim()) {
+      setValidationError('Supervisor ID is required to acknowledge fault');
+      return;
+    }
+    setValidationError('');
+    if (machine && onAcknowledgeFault) {
+      onAcknowledgeFault(machine.id, supervisorId.trim(), notes.trim() || undefined);
+      setShowAckForm(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fadeIn">
@@ -73,6 +99,13 @@ export const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
             </div>
           )}
 
+          {actionSuccessMessage && (
+            <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 text-xs flex items-center gap-2 font-semibold">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <span>{actionSuccessMessage}</span>
+            </div>
+          )}
+
           {machine && (
             <>
               {/* Fault Diagnostic Alert Banner (if in fault) */}
@@ -94,6 +127,91 @@ export const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
                     </span>
                   </div>
                 </div>
+              )}
+
+              {/* Acknowledged Banner (if acknowledged and in idle) */}
+              {machine.fault?.isAcknowledged && (
+                <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                    <span>
+                      Fault acknowledged by <strong>{machine.fault.acknowledgedBy}</strong>
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    {machine.fault.acknowledgedAt &&
+                      new Date(machine.fault.acknowledgedAt).toLocaleTimeString()}
+                  </span>
+                </div>
+              )}
+
+              {/* Inline Acknowledgment Form */}
+              {showAckForm && machine.status === 'fault' && (
+                <form
+                  onSubmit={handleSubmitAck}
+                  className="p-4 rounded-xl border border-blue-500/30 bg-blue-500/5 space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-blue-500">
+                      Supervisor Fault Acknowledgment Form
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => setShowAckForm(false)}
+                      className="text-slate-400 hover:text-slate-600 text-xs"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                      Supervisor ID *
+                    </label>
+                    <input
+                      type="text"
+                      value={supervisorId}
+                      onChange={(e) => setSupervisorId(e.target.value)}
+                      placeholder="e.g. SUP-JONES-01"
+                      className="w-full px-3 py-1.5 rounded-lg text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                      Operational Notes (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="e.g. Inspected cooling lines; cleared debris; safe for standby."
+                      className="w-full px-3 py-1.5 rounded-lg text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {validationError && (
+                    <p className="text-[11px] text-rose-500 font-medium">{validationError}</p>
+                  )}
+
+                  <div className="flex justify-end gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setShowAckForm(false)}
+                      className="px-3 py-1.5 rounded-lg text-xs border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={actionLoading}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                    >
+                      {actionLoading && <RefreshCw className="h-3 w-3 animate-spin" />}
+                      Confirm Acknowledgment
+                    </button>
+                  </div>
+                </form>
               )}
 
               {/* Equipment Physical Specifications */}
@@ -223,14 +341,14 @@ export const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
             >
               Close
             </button>
-            {machine?.status === 'fault' && (
+            {machine?.status === 'fault' && !showAckForm && (
               <button
-                disabled
-                title="Enabled in next phase: Acknowledge Fault API"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-rose-600 text-white opacity-80 cursor-not-allowed"
+                onClick={() => setShowAckForm(true)}
+                disabled={actionLoading}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition-colors"
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                Acknowledge Fault (Pending Patch API)
+                Acknowledge Fault
               </button>
             )}
           </div>
