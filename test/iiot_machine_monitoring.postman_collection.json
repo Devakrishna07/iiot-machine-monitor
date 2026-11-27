@@ -1,0 +1,299 @@
+{
+  "info": {
+    "_postman_id": "7b0d3e2a-a925-4122-b91c-99c546b5a32b",
+    "name": "IIoT Machine Monitoring API Test Collection",
+    "description": "Comprehensive Postman test collection for IIoT Machine Monitoring Dashboard backend API endpoints, validating response envelopes, status codes, pagination, and fault acknowledgment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Response returns status ok\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql(\"ok\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get All Machines (Default Pagination)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/machines?page=1&limit=8",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "machines"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "8" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Envelope contains status '200 OK' and success: true\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.status).to.eql(\"200 OK\");",
+              "    pm.expect(jsonData.data).to.be.an(\"array\");",
+              "    pm.expect(jsonData.pagination).to.be.an(\"object\");",
+              "    pm.expect(jsonData.pagination.page).to.eql(1);",
+              "    pm.expect(jsonData.pagination.limit).to.eql(8);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Filter Machines By Status (Fault)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/machines?status=fault&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "machines"],
+          "query": [
+            { "key": "status", "value": "fault" },
+            { "key": "limit", "value": "10" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"All returned items have status 'fault'\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    if (jsonData.data && jsonData.data.length > 0) {",
+              "        pm.collectionVariables.set(\"targetFaultMachineId\", jsonData.data[0].id);",
+              "        jsonData.data.forEach(function (m) {",
+              "            pm.expect(m.status).to.eql(\"fault\");",
+              "        });",
+              "    }",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search Machines By Name",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/machines?search=CNC",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "machines"],
+          "query": [
+            { "key": "search", "value": "CNC" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Search returns matching CNC machine entries\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data.length).to.be.above(0);",
+              "    jsonData.data.forEach(function (m) {",
+              "        pm.expect(m.name.toLowerCase()).to.include(\"cnc\");",
+              "    });",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get Machine By Valid ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/machines/MCH-001",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "machines", "MCH-001"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Returns correct machine object with telemetry history\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.status).to.eql(\"200 OK\");",
+              "    pm.expect(jsonData.data.id).to.eql(\"MCH-001\");",
+              "    pm.expect(jsonData.data.temperature).to.be.a(\"number\");",
+              "    pm.expect(jsonData.data.vibration).to.be.a(\"number\");",
+              "    pm.expect(jsonData.data.telemetryHistory).to.be.an(\"array\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get Machine By Non-Existent ID (404 Error Envelope)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/machines/MCH-9999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "machines", "MCH-9999"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404 Not Found\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test(\"Error envelope contains status '404 NOT_FOUND'\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.false;",
+              "    pm.expect(jsonData.status).to.eql(\"404 NOT_FOUND\");",
+              "    pm.expect(jsonData.error.message).to.include(\"not found\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Acknowledge Fault - Validation Failure (Empty Supervisor ID)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"supervisorId\": \"\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/machines/{{targetFaultMachineId}}/acknowledge",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "machines", "{{targetFaultMachineId}}", "acknowledge"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400 Bad Request\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test(\"Error envelope contains status '400 BAD_REQUEST'\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.false;",
+              "    pm.expect(jsonData.status).to.eql(\"400 BAD_REQUEST\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Acknowledge Fault - Valid Request",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"supervisorId\": \"SUP-TEST-QA\",\n  \"notes\": \"Automated Postman testing acknowledgement\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/machines/{{targetFaultMachineId}}/acknowledge",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "machines", "{{targetFaultMachineId}}", "acknowledge"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Machine status transitions to idle and isAcknowledged is true\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.status).to.eql(\"200 OK\");",
+              "    pm.expect(jsonData.data.status).to.eql(\"idle\");",
+              "    pm.expect(jsonData.data.fault.isAcknowledged).to.be.true;",
+              "    pm.expect(jsonData.data.fault.acknowledgedBy).to.eql(\"SUP-TEST-QA\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
