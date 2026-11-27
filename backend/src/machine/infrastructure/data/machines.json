@@ -366,10 +366,10 @@
   {
     "id": "MCH-015",
     "name": "Extrusion Blow Molder",
-    "status": "fault",
-    "temperature": 79.9,
-    "vibration": 3.75,
-    "lastUpdated": "2026-11-27T05:35:30.000Z",
+    "status": "idle",
+    "temperature": 59.9,
+    "vibration": 0.25,
+    "lastUpdated": "2026-11-27T07:46:10.871Z",
     "type": "Continuous Extrusion",
     "location": "Shop Floor B - Bay 2",
     "operatingHours": 4890,
@@ -377,15 +377,21 @@
       "code": "ERR_EXTRUDER_CLOG",
       "reason": "Die head pressure exceeded safety limits with associated motor thermal rise (79.9°C). Material degradation detected.",
       "triggeredAt": "2026-11-27T05:34:10.000Z",
-      "isAcknowledged": false,
-      "acknowledgedBy": null,
-      "acknowledgedAt": null
+      "isAcknowledged": true,
+      "acknowledgedBy": "sup-jones",
+      "acknowledgedAt": "2026-11-27T07:46:10.871Z",
+      "notes": null
     },
     "telemetryHistory": [
       {
         "timestamp": "2026-11-27T05:35:30Z",
         "temperature": 79.9,
         "vibration": 3.75
+      },
+      {
+        "timestamp": "2026-11-27T07:46:10.871Z",
+        "temperature": 59.9,
+        "vibration": 0.25
       }
     ]
   },
